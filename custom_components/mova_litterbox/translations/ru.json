@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MOVA Smart Litter Box",
+        "description": "Введите данные вашей учётной записи MOVA.",
+        "data": {
+          "email": "Эл. почта",
+          "password": "Пароль",
+          "country": "Страна"
+        }
+      },
+      "select_device": {
+        "title": "Выбор устройства",
+        "description": "Найдено несколько устройств. Выберите лоток для добавления.",
+        "data": {
+          "did": "Устройство"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Повторная аутентификация",
+        "description": "Сессия для {email} истекла. Введите новый пароль.",
+        "data": {
+          "password": "Пароль"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Неверный адрес эл. почты или пароль.",
+      "account_locked": "Учётная запись временно заблокирована из-за слишком большого количества неудачных попыток входа. Попробуйте позже.",
+      "cannot_connect": "Не удалось подключиться к облачному API MOVA.",
+      "no_devices": "На этой учётной записи устройства не найдены.",
+      "unknown": "Произошла непредвиденная ошибка."
+    },
+    "abort": {
+      "already_configured": "Это устройство уже настроено.",
+      "device_not_found": "Выбранное устройство не найдено.",
+      "reauth_successful": "Повторная аутентификация выполнена успешно."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visits_today": { "name": "Посещения сегодня" },
+      "avg_duration": { "name": "Средняя длительность посещения" },
+      "visit_difference": { "name": "Разница посещений по сравнению со вчера" },
+      "device_status": { "name": "Состояние устройства" },
+      "error_code": { "name": "Код ошибки" },
+      "firmware_version": { "name": "Версия прошивки" },
+      "serial_number": { "name": "Серийный номер" },
+      "device_timestamp": { "name": "Метка времени устройства" },
+      "dnd_schedule": { "name": "Расписание DND" },
+      "hex_config": { "name": "Hex-конфигурация" },
+      "last_visit": { "name": "Последнее посещение" },
+      "consumable_1": { "name": "Расходник 1 оставшиеся дни" },
+      "consumable_2": { "name": "Расходник 2 оставшиеся дни" },
+      "consumable_3": { "name": "Расходник 3 оставшиеся дни" }
+    },
+    "switch": {
+      "soft_stool_mode": { "name": "Режим мягкого стула" },
+      "dnd_mode": { "name": "Не беспокоить" },
+      "child_mode": { "name": "Защита от детей" },
+      "key_light": { "name": "Подсветка кнопок" },
+      "key_tone": { "name": "Звук кнопок" },
+      "setting_13": { "name": "Настройка 13" },
+      "auto_air_purification": { "name": "Автоочистка воздуха" },
+      "deodorizing_auto_spray": { "name": "Автоматический спрей-дезодорант" }
+    },
+    "select": {
+      "cleaning_mode": { "name": "Режим очистки" }
+    },
+    "number": {
+      "delay_cleaning": { "name": "Отложенная очистка" },
+      "deodorizing_spray_duration": { "name": "Длительность распыления дезодоранта" }
+    }
+  }
+}

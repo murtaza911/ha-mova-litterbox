@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MOVA Smart Litter Box",
+        "description": "Enter your MOVA account credentials.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "country": "Country"
+        }
+      },
+      "select_device": {
+        "title": "Select Device",
+        "description": "Multiple devices found. Select the litter box to add.",
+        "data": {
+          "did": "Device"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate",
+        "description": "Session expired for {email}. Enter your new password.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "account_locked": "Account temporarily locked due to too many failed login attempts. Try again later.",
+      "cannot_connect": "Unable to connect to the MOVA cloud API.",
+      "no_devices": "No devices found on this account.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This device is already configured.",
+      "device_not_found": "Selected device was not found.",
+      "reauth_successful": "Reauthentication successful."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visits_today": { "name": "Visits today" },
+      "avg_duration": { "name": "Average visit duration" },
+      "visit_difference": { "name": "Visit difference from yesterday" },
+      "device_status": { "name": "Device status" },
+      "error_code": { "name": "Error code" },
+      "firmware_version": { "name": "Firmware version" },
+      "serial_number": { "name": "Serial number" },
+      "device_timestamp": { "name": "Device timestamp" },
+      "dnd_schedule": { "name": "DND schedule" },
+      "hex_config": { "name": "Hex config" },
+      "last_visit": { "name": "Last visit" },
+      "consumable_1": { "name": "Consumable 1 remaining days" },
+      "consumable_2": { "name": "Consumable 2 remaining days" },
+      "consumable_3": { "name": "Consumable 3 remaining days" }
+    },
+    "switch": {
+      "soft_stool_mode": { "name": "Soft stool mode" },
+      "dnd_mode": { "name": "Do not disturb" },
+      "child_mode": { "name": "Child mode" },
+      "key_light": { "name": "Key light" },
+      "key_tone": { "name": "Key tone" },
+      "setting_13": { "name": "Setting 13" },
+      "auto_air_purification": { "name": "Auto air purification" },
+      "deodorizing_auto_spray": { "name": "Deodorizing auto spray" }
+    },
+    "select": {
+      "cleaning_mode": { "name": "Cleaning mode" }
+    },
+    "number": {
+      "delay_cleaning": { "name": "Delay cleaning" },
+      "deodorizing_spray_duration": { "name": "Deodorizing spray duration" }
+    }
+  }
+}

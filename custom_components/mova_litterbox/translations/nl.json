@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MOVA Smart Litter Box",
+        "description": "Voer je MOVA-accountgegevens in.",
+        "data": {
+          "email": "E-mail",
+          "password": "Wachtwoord",
+          "country": "Land"
+        }
+      },
+      "select_device": {
+        "title": "Apparaat selecteren",
+        "description": "Meerdere apparaten gevonden. Selecteer de kattenbak om toe te voegen.",
+        "data": {
+          "did": "Apparaat"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Opnieuw verifiëren",
+        "description": "Sessie verlopen voor {email}. Voer je nieuwe wachtwoord in.",
+        "data": {
+          "password": "Wachtwoord"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ongeldig e-mailadres of wachtwoord.",
+      "account_locked": "Account tijdelijk vergrendeld vanwege te veel mislukte aanmeldpogingen. Probeer het later opnieuw.",
+      "cannot_connect": "Kan geen verbinding maken met de MOVA cloud-API.",
+      "no_devices": "Geen apparaten gevonden op dit account.",
+      "unknown": "Er is een onverwachte fout opgetreden."
+    },
+    "abort": {
+      "already_configured": "Dit apparaat is al geconfigureerd.",
+      "device_not_found": "Geselecteerd apparaat niet gevonden.",
+      "reauth_successful": "Opnieuw verifiëren geslaagd."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visits_today": { "name": "Bezoeken vandaag" },
+      "avg_duration": { "name": "Gemiddelde bezoekduur" },
+      "visit_difference": { "name": "Bezoekverschil ten opzichte van gisteren" },
+      "device_status": { "name": "Apparaatstatus" },
+      "error_code": { "name": "Foutcode" },
+      "firmware_version": { "name": "Firmwareversie" },
+      "serial_number": { "name": "Serienummer" },
+      "device_timestamp": { "name": "Apparaat-tijdstempel" },
+      "dnd_schedule": { "name": "DND-schema" },
+      "hex_config": { "name": "Hex-configuratie" },
+      "last_visit": { "name": "Laatste bezoek" },
+      "consumable_1": { "name": "Verbruiksartikel 1 resterende dagen" },
+      "consumable_2": { "name": "Verbruiksartikel 2 resterende dagen" },
+      "consumable_3": { "name": "Verbruiksartikel 3 resterende dagen" }
+    },
+    "switch": {
+      "soft_stool_mode": { "name": "Zachte ontlasting-modus" },
+      "dnd_mode": { "name": "Niet storen" },
+      "child_mode": { "name": "Kinderslot" },
+      "key_light": { "name": "Toetsverlichting" },
+      "key_tone": { "name": "Toetsentoon" },
+      "setting_13": { "name": "Instelling 13" },
+      "auto_air_purification": { "name": "Automatische luchtzuivering" },
+      "deodorizing_auto_spray": { "name": "Automatische deodorantspray" }
+    },
+    "select": {
+      "cleaning_mode": { "name": "Reinigingsmodus" }
+    },
+    "number": {
+      "delay_cleaning": { "name": "Vertraagde reiniging" },
+      "deodorizing_spray_duration": { "name": "Duur deodorantspray" }
+    }
+  }
+}

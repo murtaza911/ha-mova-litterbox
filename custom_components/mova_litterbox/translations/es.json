@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MOVA Smart Litter Box",
+        "description": "Introduce las credenciales de tu cuenta MOVA.",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña",
+          "country": "País"
+        }
+      },
+      "select_device": {
+        "title": "Seleccionar dispositivo",
+        "description": "Se encontraron varios dispositivos. Selecciona el arenero a añadir.",
+        "data": {
+          "did": "Dispositivo"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reautenticación",
+        "description": "La sesión de {email} ha expirado. Introduce tu nueva contraseña.",
+        "data": {
+          "password": "Contraseña"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Correo electrónico o contraseña no válidos.",
+      "account_locked": "Cuenta bloqueada temporalmente por demasiados intentos fallidos de inicio de sesión. Inténtalo más tarde.",
+      "cannot_connect": "No se pudo conectar a la API en la nube de MOVA.",
+      "no_devices": "No se encontraron dispositivos en esta cuenta.",
+      "unknown": "Se produjo un error inesperado."
+    },
+    "abort": {
+      "already_configured": "Este dispositivo ya está configurado.",
+      "device_not_found": "No se encontró el dispositivo seleccionado.",
+      "reauth_successful": "Reautenticación exitosa."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visits_today": { "name": "Visitas hoy" },
+      "avg_duration": { "name": "Duración media de visita" },
+      "visit_difference": { "name": "Diferencia de visitas respecto a ayer" },
+      "device_status": { "name": "Estado del dispositivo" },
+      "error_code": { "name": "Código de error" },
+      "firmware_version": { "name": "Versión de firmware" },
+      "serial_number": { "name": "Número de serie" },
+      "device_timestamp": { "name": "Marca de tiempo del dispositivo" },
+      "dnd_schedule": { "name": "Horario DND" },
+      "hex_config": { "name": "Configuración hex" },
+      "last_visit": { "name": "Última visita" },
+      "consumable_1": { "name": "Consumible 1 días restantes" },
+      "consumable_2": { "name": "Consumible 2 días restantes" },
+      "consumable_3": { "name": "Consumible 3 días restantes" }
+    },
+    "switch": {
+      "soft_stool_mode": { "name": "Modo heces blandas" },
+      "dnd_mode": { "name": "No molestar" },
+      "child_mode": { "name": "Bloqueo infantil" },
+      "key_light": { "name": "Luz de teclas" },
+      "key_tone": { "name": "Tono de teclas" },
+      "setting_13": { "name": "Ajuste 13" },
+      "auto_air_purification": { "name": "Purificación de aire automática" },
+      "deodorizing_auto_spray": { "name": "Spray desodorizante automático" }
+    },
+    "select": {
+      "cleaning_mode": { "name": "Modo de limpieza" }
+    },
+    "number": {
+      "delay_cleaning": { "name": "Limpieza retardada" },
+      "deodorizing_spray_duration": { "name": "Duración del spray desodorizante" }
+    }
+  }
+}

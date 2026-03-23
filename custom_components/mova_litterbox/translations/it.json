@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MOVA Smart Litter Box",
+        "description": "Inserisci le credenziali del tuo account MOVA.",
+        "data": {
+          "email": "E-mail",
+          "password": "Password",
+          "country": "Paese"
+        }
+      },
+      "select_device": {
+        "title": "Seleziona dispositivo",
+        "description": "Trovati più dispositivi. Seleziona la lettiera da aggiungere.",
+        "data": {
+          "did": "Dispositivo"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Riautenticazione",
+        "description": "Sessione scaduta per {email}. Inserisci la nuova password.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "E-mail o password non validi.",
+      "account_locked": "Account temporaneamente bloccato per troppi tentativi di accesso falliti. Riprova più tardi.",
+      "cannot_connect": "Impossibile connettersi all'API cloud di MOVA.",
+      "no_devices": "Nessun dispositivo trovato su questo account.",
+      "unknown": "Si è verificato un errore imprevisto."
+    },
+    "abort": {
+      "already_configured": "Questo dispositivo è già configurato.",
+      "device_not_found": "Il dispositivo selezionato non è stato trovato.",
+      "reauth_successful": "Riautenticazione riuscita."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visits_today": { "name": "Visite oggi" },
+      "avg_duration": { "name": "Durata media della visita" },
+      "visit_difference": { "name": "Differenza visite rispetto a ieri" },
+      "device_status": { "name": "Stato del dispositivo" },
+      "error_code": { "name": "Codice errore" },
+      "firmware_version": { "name": "Versione firmware" },
+      "serial_number": { "name": "Numero di serie" },
+      "device_timestamp": { "name": "Timestamp del dispositivo" },
+      "dnd_schedule": { "name": "Programmazione DND" },
+      "hex_config": { "name": "Configurazione hex" },
+      "last_visit": { "name": "Ultima visita" },
+      "consumable_1": { "name": "Consumabile 1 giorni rimanenti" },
+      "consumable_2": { "name": "Consumabile 2 giorni rimanenti" },
+      "consumable_3": { "name": "Consumabile 3 giorni rimanenti" }
+    },
+    "switch": {
+      "soft_stool_mode": { "name": "Modalità feci molli" },
+      "dnd_mode": { "name": "Non disturbare" },
+      "child_mode": { "name": "Blocco bambini" },
+      "key_light": { "name": "Luce tasti" },
+      "key_tone": { "name": "Suono tasti" },
+      "setting_13": { "name": "Impostazione 13" },
+      "auto_air_purification": { "name": "Purificazione aria automatica" },
+      "deodorizing_auto_spray": { "name": "Spray deodorante automatico" }
+    },
+    "select": {
+      "cleaning_mode": { "name": "Modalità pulizia" }
+    },
+    "number": {
+      "delay_cleaning": { "name": "Pulizia ritardata" },
+      "deodorizing_spray_duration": { "name": "Durata spray deodorante" }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "MOVA Smart Litter Box",
+        "description": "Wprowadź dane logowania do konta MOVA.",
+        "data": {
+          "email": "E-mail",
+          "password": "Hasło",
+          "country": "Kraj"
+        }
+      },
+      "select_device": {
+        "title": "Wybierz urządzenie",
+        "description": "Znaleziono wiele urządzeń. Wybierz kuwetę do dodania.",
+        "data": {
+          "did": "Urządzenie"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Ponowne uwierzytelnienie",
+        "description": "Sesja dla {email} wygasła. Wprowadź nowe hasło.",
+        "data": {
+          "password": "Hasło"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Nieprawidłowy e-mail lub hasło.",
+      "account_locked": "Konto tymczasowo zablokowane z powodu zbyt wielu nieudanych prób logowania. Spróbuj ponownie później.",
+      "cannot_connect": "Nie można połączyć się z API chmury MOVA.",
+      "no_devices": "Nie znaleziono urządzeń na tym koncie.",
+      "unknown": "Wystąpił nieoczekiwany błąd."
+    },
+    "abort": {
+      "already_configured": "To urządzenie jest już skonfigurowane.",
+      "device_not_found": "Nie znaleziono wybranego urządzenia.",
+      "reauth_successful": "Ponowne uwierzytelnienie zakończone powodzeniem."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "visits_today": { "name": "Wizyty dzisiaj" },
+      "avg_duration": { "name": "Średni czas wizyty" },
+      "visit_difference": { "name": "Różnica wizyt względem wczoraj" },
+      "device_status": { "name": "Stan urządzenia" },
+      "error_code": { "name": "Kod błędu" },
+      "firmware_version": { "name": "Wersja firmware" },
+      "serial_number": { "name": "Numer seryjny" },
+      "device_timestamp": { "name": "Znacznik czasu urządzenia" },
+      "dnd_schedule": { "name": "Harmonogram DND" },
+      "hex_config": { "name": "Konfiguracja hex" },
+      "last_visit": { "name": "Ostatnia wizyta" },
+      "consumable_1": { "name": "Materiał eksploatacyjny 1 pozostałe dni" },
+      "consumable_2": { "name": "Materiał eksploatacyjny 2 pozostałe dni" },
+      "consumable_3": { "name": "Materiał eksploatacyjny 3 pozostałe dni" }
+    },
+    "switch": {
+      "soft_stool_mode": { "name": "Tryb miękkiego stolca" },
+      "dnd_mode": { "name": "Nie przeszkadzać" },
+      "child_mode": { "name": "Blokada rodzicielska" },
+      "key_light": { "name": "Podświetlenie przycisków" },
+      "key_tone": { "name": "Dźwięk przycisków" },
+      "setting_13": { "name": "Ustawienie 13" },
+      "auto_air_purification": { "name": "Automatyczne oczyszczanie powietrza" },
+      "deodorizing_auto_spray": { "name": "Automatyczny spray odświeżający" }
+    },
+    "select": {
+      "cleaning_mode": { "name": "Tryb czyszczenia" }
+    },
+    "number": {
+      "delay_cleaning": { "name": "Opóźnione czyszczenie" },
+      "deodorizing_spray_duration": { "name": "Czas rozpylania odświeżacza" }
+    }
+  }
+}
