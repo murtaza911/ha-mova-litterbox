@@ -11,6 +11,7 @@ from .const import (
     AUTH_HEADER_BASIC,
     BASE_URLS,
     DEFAULT_REGION,
+    ENDPOINT_ABNORMALITIES,
     ENDPOINT_AUTH_TOKEN,
     ENDPOINT_CONSUMABLES,
     ENDPOINT_DEVICE_INFO,
@@ -22,6 +23,7 @@ from .const import (
     PASSWORD_SALT,
     SIGN_SALT,
     TENANT_ID,
+    USER_AGENT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -91,6 +93,7 @@ class MovaApiClient:
         return {
             "authorization": AUTH_HEADER_BASIC,
             "tenant-id": TENANT_ID,
+            "user-agent": USER_AGENT,
             "content-type": "application/x-www-form-urlencoded",
         }
 
@@ -124,16 +127,18 @@ class MovaApiClient:
         """Log in with email and hashed password."""
         url = f"{self._base_url}{ENDPOINT_AUTH_TOKEN}"
         hashed = self._hash_password(self._password)
-        data = (
-            f"grant_type=password&scope=all&platform=ANDROID&type=account"
-            f"&username={self._email}&password={hashed}"
-            f"&country={self._country}&lang=en"
-        )
+        data = {
+            "grant_type": "password", "scope": "all", "platform": "IOS",
+            "type": "account", "username": self._email, "password": hashed,
+        }
         timeout = aiohttp.ClientTimeout(total=15)
         async with self._session.post(
             url, data=data, headers=self._auth_headers(), timeout=timeout
         ) as response:
             body = await response.json()
+            if response.status == 401:
+                _LOGGER.warning("MOVA rejected login in region %s (HTTP 401, error %s)", self._region, body.get("error", "unknown"))
+                raise MovaAuthError("MOVA rejected login in the selected region")
             if response.status == 400:
                 error = body.get("error", "")
                 description = body.get("error_description", "Login failed")
@@ -153,7 +158,7 @@ class MovaApiClient:
             raise MovaAuthError("No refresh token available")
 
         url = f"{self._base_url}{ENDPOINT_AUTH_TOKEN}"
-        data = f"grant_type=refresh_token&refresh_token={self._refresh_token_value}"
+        data = {"platform": "IOS", "scope": "all", "grant_type": "refresh_token", "refresh_token": self._refresh_token_value}
         timeout = aiohttp.ClientTimeout(total=15)
         async with self._session.post(
             url, data=data, headers=self._auth_headers(), timeout=timeout
@@ -196,7 +201,7 @@ class MovaApiClient:
         }
         timeout = aiohttp.ClientTimeout(total=15)
         async with self._session.post(
-            url, json=body, headers=self._headers(), timeout=timeout
+            url, json=self._signed_body(body), headers=self._headers(), timeout=timeout
         ) as response:
             if response.status == 401:
                 raise MovaAuthError("Authentication failed")
@@ -222,6 +227,7 @@ class MovaApiClient:
             "authorization": AUTH_HEADER_BASIC,
             "dreame-auth": self._access_token or "",
             "tenant-id": TENANT_ID,
+            "user-agent": USER_AGENT,
             "content-type": "application/json; charset=utf-8",
         }
 
@@ -271,13 +277,13 @@ class MovaApiClient:
 
     async def get_device_info(self) -> dict[str, Any]:
         body = self._base_body()
-        result = await self._post(ENDPOINT_DEVICE_INFO, body)
+        result = await self._post(ENDPOINT_DEVICE_INFO, self._signed_body(body))
         return result.get("data", result)
 
     async def get_pet_info(self) -> list[dict[str, Any]]:
         body = self._base_body()
         body["deviceFlag"] = 0
-        result = await self._post(ENDPOINT_PET_INFO, body)
+        result = await self._post(ENDPOINT_PET_INFO, self._signed_body(body))
         data = result.get("data", result)
         if isinstance(data, dict):
             return data.get("petInfos", [])
@@ -291,36 +297,49 @@ class MovaApiClient:
         params: list of (siid, piid) tuples
         Returns: dict mapping (siid, piid) -> value
         """
-        request_id = self._next_request_id()
-        miot_params = [
-            {"did": self._did, "siid": siid, "piid": piid}
-            for siid, piid in params
-        ]
-        body = {
-            "data": {
+        properties: dict[tuple[int, int], Any] = {}
+        for start in range(0, len(params), 20):
+            request_id = self._next_request_id()
+            miot_params = [
+                {"did": self._did, "siid": siid, "piid": piid}
+                for siid, piid in params[start : start + 20]
+            ]
+            body = {
+                "data": {
+                    "did": self._did,
+                    "from": "",
+                    "id": request_id,
+                    "method": "get_properties",
+                    "params": miot_params,
+                },
                 "did": self._did,
-                "from": "",
                 "id": request_id,
-                "method": "get_properties",
-                "params": miot_params,
-            },
-            "did": self._did,
-            "id": request_id,
-            "timestamp": self._timestamp(),
-        }
-        result = await self._post(ENDPOINT_SEND_COMMAND, body)
-        properties = {}
-        result_data = result.get("data", result)
-        if isinstance(result_data, dict):
-            result_params = result_data.get("result", [])
-        elif isinstance(result_data, list):
-            result_params = result_data
-        else:
-            result_params = []
-        for prop in result_params:
-            key = (prop.get("siid"), prop.get("piid"))
-            properties[key] = prop.get("value")
+                "timestamp": self._timestamp(),
+            }
+            result = await self._post(ENDPOINT_SEND_COMMAND, body)
+            result_data = result.get("data", result)
+            if isinstance(result_data, dict):
+                result_params = result_data.get("result", [])
+            elif isinstance(result_data, list):
+                result_params = result_data
+            else:
+                result_params = []
+            for prop in result_params:
+                if not isinstance(prop, dict) or prop.get("code", 0) != 0:
+                    continue
+                key = (prop.get("siid"), prop.get("piid"))
+                properties[key] = prop.get("value")
         return properties
+
+    async def get_abnormalities(self, model: str) -> Any:
+        """Read the device-scoped pet abnormality resource from MOVAhome."""
+        response = await self._post(
+            ENDPOINT_ABNORMALITIES,
+            {"did": self._did, "model": model, "timestamp": self._timestamp()},
+        )
+        if response.get("code", 0) != 0:
+            raise MovaApiError("Could not read MOVA pet abnormalities")
+        return response.get("data")
 
     async def set_property(self, siid: int, piid: int, value: Any) -> dict[str, Any]:
         request_id = self._next_request_id()
@@ -343,7 +362,40 @@ class MovaApiClient:
             "id": request_id,
             "timestamp": self._timestamp(),
         }
-        return await self._post(ENDPOINT_SEND_COMMAND, body)
+        response = await self._post(ENDPOINT_SEND_COMMAND, body)
+        self._check_command_result(response, "Property update")
+        return response
+
+    @staticmethod
+    def _check_command_result(response: dict[str, Any], operation: str) -> None:
+        """Reject command failures reported inside an HTTP 200 response."""
+        data = response.get("data", {})
+        result = data.get("result", data) if isinstance(data, dict) else data
+        items = result if isinstance(result, list) else [result]
+        for item in [response, *items]:
+            if isinstance(item, dict) and item.get("code", 0) != 0:
+                raise MovaApiError(f"{operation} failed (code {item['code']})")
+
+    async def call_action(self, siid: int, aiid: int) -> dict[str, Any]:
+        """Invoke a confirmed MIoT action on the selected litter box."""
+        if not self._did:
+            raise MovaApiError("No litter box is selected")
+        request_id = self._next_request_id()
+        body = {
+            "data": {
+                "did": self._did,
+                "from": "",
+                "id": request_id,
+                "method": "action",
+                "params": {"did": self._did, "siid": siid, "aiid": aiid, "in": []},
+            },
+            "did": self._did,
+            "id": request_id,
+            "timestamp": self._timestamp(),
+        }
+        response = await self._post(ENDPOINT_SEND_COMMAND, body)
+        self._check_command_result(response, f"Action {siid}.{aiid}")
+        return response
 
     async def get_visit_summary(
         self, date: str, timezone: str
@@ -394,5 +446,5 @@ class MovaApiClient:
     async def get_consumables(self) -> list[dict[str, Any]]:
         url_endpoint = f"{ENDPOINT_CONSUMABLES}?did={self._did}"
         body = self._base_body()
-        result = await self._post(url_endpoint, body)
+        result = await self._post(url_endpoint, self._signed_body(body))
         return result.get("data", result)

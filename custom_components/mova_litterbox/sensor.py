@@ -44,6 +44,8 @@ async def async_setup_entry(
     entities.append(MovaTimestampSensor(coordinator, did))
     entities.append(MovaDndScheduleSensor(coordinator, did))
     entities.append(MovaHexConfigSensor(coordinator, did))
+    entities.append(MovaCleaningScheduleSensor(coordinator, did))
+    entities.append(MovaPetAbnormalitySensor(coordinator, did))
 
     for pet in coordinator.pet_info:
         pet_id = pet.get("id", "")
@@ -210,7 +212,7 @@ class MovaHexConfigSensor(MovaBaseSensor):
     _attr_icon = "mdi:code-braces"
 
     def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
-        super().__init__(coordinator, did, "hex_config", "Hex Config")
+        super().__init__(coordinator, did, "hex_config", "Air Purification Night Schedule")
 
     @property
     def native_value(self) -> str | None:
@@ -218,6 +220,41 @@ class MovaHexConfigSensor(MovaBaseSensor):
         value = props.get((3, 20))
         if value is not None:
             return str(value)
+        return None
+
+
+class MovaCleaningScheduleSensor(MovaBaseSensor):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:calendar-clock"
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "cleaning_schedule", "Cleaning Schedule")
+
+    @property
+    def native_value(self) -> str | None:
+        value = (self.coordinator.data or {}).get("properties", {}).get((3, 7))
+        return str(value) if value is not None else None
+
+
+class MovaPetAbnormalitySensor(MovaBaseSensor):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:alert-circle-outline"
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "pet_abnormalities", "Pet Abnormalities")
+
+    @property
+    def native_value(self) -> int | None:
+        value = (self.coordinator.data or {}).get("abnormalities")
+        if isinstance(value, list):
+            return len(value)
+        if isinstance(value, dict):
+            for key in ("count", "total"):
+                if isinstance(value.get(key), int):
+                    return value[key]
+            for key in ("petAbnormalRespList", "abnormalCollection", "records", "list", "items"):
+                if isinstance(value.get(key), list):
+                    return len(value[key])
         return None
 
 

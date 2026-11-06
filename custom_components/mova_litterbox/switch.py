@@ -52,6 +52,10 @@ class MovaSettingSwitch(MovaBaseEntity, SwitchEntity):
             return None
         return bool(value)
 
+    @property
+    def available(self) -> bool:
+        return super().available and (self._siid, self._piid) in (self.coordinator.data or {}).get("properties", {})
+
     async def async_turn_on(self, **kwargs: Any) -> None:
         try:
             await self.coordinator.client.set_property(self._siid, self._piid, 1)

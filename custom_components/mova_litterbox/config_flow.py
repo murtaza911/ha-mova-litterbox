@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Any
 
@@ -18,19 +19,13 @@ from .const import (
     CONF_UID,
     COUNTRY_CHOICES,
     DEFAULT_COUNTRY,
+    DEFAULT_REGION,
+    COUNTRY_REGIONS,
+    REGION_CHOICES,
     DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-STEP_USER_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_EMAIL): str,
-        vol.Required(CONF_PASSWORD): str,
-        vol.Required(CONF_COUNTRY, default=DEFAULT_COUNTRY): vol.In(COUNTRY_CHOICES),
-    }
-)
-
 
 class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 3
@@ -53,6 +48,7 @@ class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 email=user_input[CONF_EMAIL],
                 password=user_input[CONF_PASSWORD],
                 country=user_input[CONF_COUNTRY],
+                region=user_input[CONF_REGION],
             )
             try:
                 await client.login()
@@ -63,7 +59,8 @@ class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "account_locked"
                 else:
                     errors["base"] = "invalid_auth"
-            except (MovaApiError, aiohttp.ClientError):
+            except (MovaApiError, aiohttp.ClientError, asyncio.TimeoutError) as err:
+                _LOGGER.warning("MOVA setup failed on region %s: %s", client.region, str(err) if isinstance(err, MovaApiError) else type(err).__name__)
                 errors["base"] = "cannot_connect"
             except Exception:
                 _LOGGER.exception("Unexpected error during authentication")
@@ -71,18 +68,29 @@ class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 self._client = client
                 self._user_input = user_input
-                self._devices = devices
+                litter_boxes = [
+                    device for device in devices
+                    if str(device.get("model") or "").lower().startswith("mova.litterbox.")
+                ]
+                self._devices = litter_boxes or devices
 
-                if not devices:
+                if not self._devices:
                     errors["base"] = "no_devices"
-                elif len(devices) == 1:
-                    return await self._create_entry(devices[0])
+                elif len(self._devices) == 1:
+                    return await self._create_entry(self._devices[0])
                 else:
                     return await self.async_step_select_device()
 
+        country_default = self.hass.config.country if self.hass.config.country in COUNTRY_CHOICES else DEFAULT_COUNTRY
+        region_default = COUNTRY_REGIONS.get(country_default, DEFAULT_REGION)
         return self.async_show_form(
             step_id="user",
-            data_schema=STEP_USER_SCHEMA,
+            data_schema=vol.Schema({
+                vol.Required(CONF_EMAIL, default=user_input.get(CONF_EMAIL, "") if user_input else ""): str,
+                vol.Required(CONF_PASSWORD): str,
+                vol.Required(CONF_COUNTRY, default=user_input.get(CONF_COUNTRY, country_default) if user_input else country_default): vol.In(COUNTRY_CHOICES),
+                vol.Required(CONF_REGION, default=user_input.get(CONF_REGION, region_default) if user_input else region_default): vol.In(REGION_CHOICES),
+            }),
             errors=errors,
         )
 
@@ -92,14 +100,17 @@ class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             selected_did = user_input[CONF_DID]
             for device in self._devices:
-                if device.get("did") == selected_did:
+                if str(device.get("did")) == selected_did:
                     return await self._create_entry(device)
             return self.async_abort(reason="device_not_found")
 
-        device_options = {
-            device.get("did", ""): device.get("customName", device.get("model", device.get("did", "Unknown")))
-            for device in self._devices
-        }
+        device_options = {}
+        for device in self._devices:
+            did = str(device.get("did") or "")
+            if not did:
+                continue
+            name = device.get("customName") or device.get("deviceName") or device.get("model") or "MOVA device"
+            device_options[did] = f"{name} (ID {did})"
 
         return self.async_show_form(
             step_id="select_device",
@@ -140,7 +151,8 @@ class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "account_locked"
                 else:
                     errors["base"] = "invalid_auth"
-            except (MovaApiError, aiohttp.ClientError):
+            except (MovaApiError, aiohttp.ClientError, asyncio.TimeoutError) as err:
+                _LOGGER.warning("MOVA reauthentication failed on region %s: %s", client.region, str(err) if isinstance(err, MovaApiError) else type(err).__name__)
                 errors["base"] = "cannot_connect"
             except Exception:
                 _LOGGER.exception("Unexpected error during reauthentication")
@@ -171,11 +183,11 @@ class MovaLitterboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _create_entry(
         self, device: dict[str, Any]
     ) -> config_entries.ConfigFlowResult:
-        did = device.get("did", "")
+        did = str(device.get("did") or "")
         await self.async_set_unique_id(did)
         self._abort_if_unique_id_configured()
 
-        title = device.get("customName", "MOVA Litter Box")
+        title = device.get("customName") or device.get("deviceName") or "MOVA Litter Box"
         data = {
             CONF_EMAIL: self._user_input[CONF_EMAIL],
             CONF_PASSWORD: self._user_input[CONF_PASSWORD],

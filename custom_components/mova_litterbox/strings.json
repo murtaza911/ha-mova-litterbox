@@ -7,7 +7,8 @@
         "data": {
           "email": "Email",
           "password": "Password",
-          "country": "Country"
+          "country": "Country",
+          "region": "MOVAhome app region"
         }
       },
       "select_device": {
@@ -26,7 +27,7 @@
       }
     },
     "error": {
-      "invalid_auth": "Invalid email or password.",
+      "invalid_auth": "MOVA rejected the login. Check your email, password, and MOVAhome app region.",
       "account_locked": "Account temporarily locked due to too many failed login attempts. Try again later.",
       "cannot_connect": "Unable to connect to the MOVA cloud API.",
       "no_devices": "No devices found on this account.",

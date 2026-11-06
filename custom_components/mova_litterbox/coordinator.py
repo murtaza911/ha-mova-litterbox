@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -32,6 +33,7 @@ class MovaLitterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.timezone = timezone
         self.device_info: dict[str, Any] = {}
         self.pet_info: list[dict[str, Any]] = []
+        self._update_count = 0
 
     async def async_setup(self) -> None:
         """Fetch device and pet info once during setup."""
@@ -88,6 +90,15 @@ class MovaLitterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._today_str(), self.timezone, page=1, page_size=50
             )
 
+            abnormalities = self.data.get("abnormalities") if self.data else None
+            model = self.device_info.get("model")
+            if model and self._update_count % 5 == 0:
+                try:
+                    abnormalities = await self.client.get_abnormalities(model)
+                except (MovaApiError, ClientError, TimeoutError) as err:
+                    _LOGGER.debug("Could not read MOVA pet abnormalities: %s", err)
+            self._update_count += 1
+
             last_visit = visit_details[0] if visit_details else None
             latest_weights = self._extract_latest_weights(visit_details)
             pet_avatars = self._build_pet_avatar_map()
@@ -102,6 +113,7 @@ class MovaLitterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "visit_details": visit_details,
                 "latest_weights": latest_weights,
                 "pet_avatars": pet_avatars,
+                "abnormalities": abnormalities,
             }
         except MovaAuthError as err:
             raise UpdateFailed(f"Authentication failed: {err}") from err
