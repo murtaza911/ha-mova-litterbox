@@ -13,12 +13,13 @@ An unofficial cloud integration for the MOVA MeowgicPod LB10 Prime (`mova.litter
 - Cleaning mode and delay, litter type, leveling angle, child mode, quiet mode, lights, and sounds
 - Waste bag replacement date, visits since replacement, and an estimated replacement countdown
 - Automatic bag reminder based on 30 visits and the previous 14 complete days of visit history, or manual reminder using a visit limit and optional day limit
+- Bundled Home Assistant-style device card with a compact status tile and a tap-to-open control panel
 
 The bag reminder is an estimate based on recorded visits. The integration does not have a verified sensor that detects a physically full waste bag. If you enter only a replacement date, visits for that entire date are included.
 
 ## Install
 
-In HACS, add `https://github.com/murtaza911/ha-mova-litterbox` as a **custom integration repository**, install **MOVA Smart Litter Box**, and restart Home Assistant. Or copy `custom_components/mova_litterbox` into your Home Assistant configuration and restart.
+In Home Assistant 2026.11 or later, add `https://github.com/murtaza911/ha-mova-litterbox` under **Settings → Marketplace → Custom repositories** as an **Integration**, install **MOVA Smart Litter Box**, and restart Home Assistant if prompted. On older Home Assistant versions, use HACS. Or copy `custom_components/mova_litterbox` into your Home Assistant configuration and restart.
 
 Then go to **Settings → Devices & services → Add integration → MOVA Smart Litter Box**. Sign in with your MOVAhome account and select the country and cloud region used by the app. This fork has been verified with a Canada account on the Americas region and Home Assistant 2026.11.0; other combinations are not yet verified here.
 
@@ -32,7 +33,19 @@ Enter the day you last changed the bag through the **Bag Replacement Date** enti
 
 ## Dashboard
 
-This repository provides Home Assistant entities. The custom popup and Basement tile in my own Nightfall dashboard are separate, home-specific dashboard code and are not bundled with this integration.
+The integration includes a device card. Its dashboard resource is registered automatically in Home Assistant's default storage mode; there is no separate card to install. In a dashboard, choose **Edit → Add card → MOVA Litter Box**. The card finds your MOVA litter box and its entities, shows status, visits, and the bag replacement estimate in a compact tile, and opens the controls when tapped. If you have several MOVA litter boxes, select one in the card's control panel.
+
+Home Assistant chooses the layout of its automatically generated dashboard, so adding the integration does not place this custom card there automatically. You can add it to any editable dashboard. If dashboard resources are managed in YAML, add this module resource yourself:
+
+```yaml
+lovelace:
+  resource_mode: yaml
+  resources:
+    - url: /mova_litterbox/mova-litter-card.js?v=0.3.0
+      type: module
+```
+
+Then add `type: custom:mova-litter-card` to the desired view. The controls use the integration's own Home Assistant entities, and unavailable actions are disabled.
 
 ## API reference
 

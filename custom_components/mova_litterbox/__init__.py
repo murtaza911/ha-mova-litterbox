@@ -1,11 +1,14 @@
 import logging
 from datetime import timedelta
+from pathlib import Path
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.loader import async_get_integration
 
 from .api import MovaApiClient, MovaApiError, MovaAuthError
 from .const import (
@@ -21,8 +24,48 @@ from .const import (
 from .coordinator import MovaLitterboxCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+CARD_PATH = "/mova_litterbox/mova-litter-card.js"
 
 type MovaConfigEntry = ConfigEntry[MovaLitterboxCoordinator]
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Serve and register the bundled dashboard card once per Home Assistant run."""
+    card_file = Path(__file__).parent / "frontend" / "mova-litter-card.js"
+    if not card_file.is_file():
+        _LOGGER.warning("MOVA dashboard card is missing from the installation")
+        return True
+
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(CARD_PATH, str(card_file), False)]
+    )
+
+    lovelace = hass.data.get("lovelace")
+    if lovelace is None or lovelace.resource_mode != "storage":
+        _LOGGER.info(
+            "MOVA card is served at %s; YAML resource mode requires a manual resource entry",
+            CARD_PATH,
+        )
+        return True
+
+    resources = lovelace.resources
+    # Never read or write a lazy resource collection before loading its saved data.
+    if not resources.loaded:
+        await resources.async_load()
+    integration = await async_get_integration(hass, DOMAIN)
+    desired_url = f"{CARD_PATH}?v={integration.version}"
+    existing = next(
+        (item for item in resources.async_items()
+         if item["url"].split("?", 1)[0] == CARD_PATH),
+        None,
+    )
+    if existing is None:
+        await resources.async_create_item({"res_type": "module", "url": desired_url})
+    elif existing["url"] != desired_url or existing["res_type"] != "module":
+        await resources.async_update_item(
+            existing["id"], {"res_type": "module", "url": desired_url}
+        )
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: MovaConfigEntry) -> bool:
