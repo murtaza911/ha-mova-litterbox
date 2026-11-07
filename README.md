@@ -35,6 +35,14 @@ Enter the day you last changed the bag through the **Bag Replacement Date** enti
 
 The integration includes a device card. Its dashboard resource is registered automatically in Home Assistant's default storage mode; there is no separate card to install. In a dashboard, choose **Edit → Add card → MOVA Litter Box**. The card finds your MOVA litter box and its entities, shows status, visits, and the bag replacement estimate in a compact tile, and opens the controls when tapped. If you have several MOVA litter boxes, select one in the card's control panel.
 
+### Compact device tile
+
+![MOVA device tile showing standby status, visits, and the waste bag estimate](assets/mova-device-tile.jpg)
+
+### Controls
+
+![MOVA card open with toileting data, waste bag reminder, and manual actions; pet name anonymized](assets/mova-device-controls.png)
+
 Home Assistant chooses the layout of its automatically generated dashboard, so adding the integration does not place this custom card there automatically. You can add it to any editable dashboard. If dashboard resources are managed in YAML, add this module resource yourself:
 
 ```yaml
