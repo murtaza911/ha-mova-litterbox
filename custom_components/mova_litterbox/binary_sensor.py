@@ -22,6 +22,7 @@ async def async_setup_entry(
         MovaProblemSensor(coordinator, did, "warning", "Warning", 2),
         MovaProblemSensor(coordinator, did, "fault", "Fault", 6),
         MovaProblemSensor(coordinator, did, "additional_warning", "Additional Warning", 11),
+        MovaBagReminderSensor(coordinator, did),
     ])
 
 
@@ -42,3 +43,18 @@ class MovaProblemSensor(MovaBaseEntity, BinarySensorEntity):
     def extra_state_attributes(self) -> dict[str, int] | None:
         value = (self.coordinator.data or {}).get("properties", {}).get((2, self._piid))
         return {"mask": value} if isinstance(value, int) else None
+
+
+class MovaBagReminderSensor(MovaBaseEntity, BinarySensorEntity):
+    _attr_icon = "mdi:trash-can-alert-outline"
+
+    def __init__(self, coordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_reminder_due", "Bag Reminder Due")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def is_on(self) -> bool | None:
+        return self.coordinator.bag_reminder_due

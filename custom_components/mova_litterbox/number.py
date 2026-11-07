@@ -27,7 +27,64 @@ async def async_setup_entry(
     async_add_entities([
         MovaDelayCleaningNumber(coordinator, did),
         MovaDeodorizingSprayDurationNumber(coordinator, did),
+        MovaBagReminderDaysNumber(coordinator, did),
+        MovaBagReminderVisitsNumber(coordinator, did),
     ])
+
+
+class MovaBagReminderDaysNumber(MovaBaseEntity, NumberEntity):
+    """User chosen time based reminder; this is not a fullness sensor."""
+
+    _attr_icon = "mdi:calendar-clock"
+    _attr_native_min_value = 0
+    _attr_native_max_value = 90
+    _attr_native_step = 1
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+    _attr_mode = NumberMode.BOX
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_reminder_days", "Bag Reminder Days")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> float:
+        return float(self.coordinator.bag_reminder_days)
+
+    async def async_set_native_value(self, value: float) -> None:
+        days = int(value)
+        if value != days or not 0 <= days <= 90:
+            raise HomeAssistantError("Bag reminder must be 0 to 90 whole days (0 disables age limit)")
+        await self.coordinator.async_set_bag_reminder_days(days)
+
+
+class MovaBagReminderVisitsNumber(MovaBaseEntity, NumberEntity):
+    """Number of recorded visits before checking the waste bag."""
+
+    _attr_icon = "mdi:cat"
+    _attr_native_min_value = 1
+    _attr_native_max_value = 200
+    _attr_native_step = 1
+    _attr_mode = NumberMode.BOX
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_reminder_visits", "Bag Reminder Visits")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> float:
+        return float(self.coordinator.bag_reminder_visits)
+
+    async def async_set_native_value(self, value: float) -> None:
+        visits = int(value)
+        if value != visits or not 1 <= visits <= 200:
+            raise HomeAssistantError("Bag reminder must be 1 to 200 whole visits")
+        await self.coordinator.async_set_bag_reminder_visits(visits)
 
 
 class MovaDelayCleaningNumber(MovaBaseEntity, NumberEntity):

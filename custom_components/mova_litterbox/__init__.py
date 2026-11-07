@@ -1,9 +1,11 @@
 import logging
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_time_interval
 
 from .api import MovaApiClient, MovaApiError, MovaAuthError
 from .const import (
@@ -52,6 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: MovaConfigEntry) -> bool
     timezone = hass.config.time_zone
 
     coordinator = MovaLitterboxCoordinator(hass, client, entry, timezone)
+    await coordinator.async_load_bag_tracker()
     try:
         await coordinator.async_setup()
     except (MovaApiError, MovaAuthError) as err:
@@ -61,6 +64,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: MovaConfigEntry) -> bool
     entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(
+        async_track_time_interval(hass, coordinator.async_check_bag_reminder, timedelta(hours=1))
+    )
     return True
 
 

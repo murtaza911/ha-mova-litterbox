@@ -46,6 +46,9 @@ async def async_setup_entry(
     entities.append(MovaHexConfigSensor(coordinator, did))
     entities.append(MovaCleaningScheduleSensor(coordinator, did))
     entities.append(MovaPetAbnormalitySensor(coordinator, did))
+    entities.append(MovaBagAgeSensor(coordinator, did))
+    entities.append(MovaBagVisitsSensor(coordinator, did))
+    entities.append(MovaBagEstimateSensor(coordinator, did))
 
     for pet in coordinator.pet_info:
         pet_id = pet.get("id", "")
@@ -71,6 +74,76 @@ async def async_setup_entry(
 
 class MovaBaseSensor(MovaBaseEntity, SensorEntity):
     pass
+
+
+class MovaBagAgeSensor(MovaBaseSensor):
+    _attr_icon = "mdi:trash-can-clock-outline"
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_age", "Bag Age")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> int | None:
+        return self.coordinator.bag_age_days
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str | None]:
+        date = self.coordinator.bag_replaced_at
+        return {"last_replaced": date.isoformat() if date else None,
+                "basis": "manual replacement date; not a physical fullness reading"}
+
+
+class MovaBagVisitsSensor(MovaBaseSensor):
+    _attr_icon = "mdi:counter"
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_visits", "Bag Visits")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> int | None:
+        return self.coordinator.bag_visits
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str]:
+        return {"basis": "MOVA daily visit totals since bag replacement; not a physical fullness reading"}
+
+
+class MovaBagEstimateSensor(MovaBaseSensor):
+    _attr_icon = "mdi:calendar-clock-outline"
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_estimated_days_remaining", "Bag Estimated Days Remaining")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> int | None:
+        return self.coordinator.bag_estimated_days_remaining
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str | float | int | None]:
+        return {
+            "estimated_date": self.coordinator.bag_estimated_date,
+            "recent_visits_per_day": self.coordinator.recent_visits_per_day,
+            "recent_history_days": 14,
+            "typical_cycle_days": self.coordinator.bag_typical_cycle_days,
+            "reminder_mode": self.coordinator.bag_reminder_mode,
+            "automatic_visit_target": 30,
+            "bag_visits": self.coordinator.bag_visits,
+            "basis": "Automatic: remaining visits to 30 at recent pace. Manual: earlier of visit projection and day limit. Not a physical fullness reading.",
+        }
 
 
 class MovaVisitCountSensor(MovaBaseSensor):

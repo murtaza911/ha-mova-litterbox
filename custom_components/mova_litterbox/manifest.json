@@ -1,12 +1,12 @@
 {
   "domain": "mova_litterbox",
   "name": "MOVA Smart Litter Box",
-  "codeowners": ["@knowald"],
+  "codeowners": ["@murtaza911"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/knowald/mova-litterbox",
+  "documentation": "https://github.com/murtaza911/ha-mova-litterbox",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/knowald/mova-litterbox/issues",
+  "issue_tracker": "https://github.com/murtaza911/ha-mova-litterbox/issues",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.2.0"
 }

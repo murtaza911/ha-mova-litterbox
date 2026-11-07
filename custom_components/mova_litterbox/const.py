@@ -95,7 +95,7 @@ CONSUMABLE_TYPE_MAP = {
     3: "Consumable 3",
 }
 
-PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.SELECT, Platform.NUMBER, Platform.BUTTON]
+PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.SELECT, Platform.NUMBER, Platform.BUTTON, Platform.DATE]
 
 LITTER_TYPES = {0: "Clay litter", 1: "Tofu litter"}
 AIR_PURIFICATION_DURATIONS = {6: "Short (6 min)", 18: "Standard (18 min)", 36: "Deep (36 min)"}

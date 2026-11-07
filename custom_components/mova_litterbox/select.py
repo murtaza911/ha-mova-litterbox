@@ -33,11 +33,33 @@ async def async_setup_entry(
     did = entry.data[CONF_DID]
 
     async_add_entities([
+        MovaBagReminderModeSelect(coordinator, did),
         MovaCleaningModeSelect(coordinator, did),
         MovaPropertySelect(coordinator, did, "litter_type", "Litter Type", 3, 12, LITTER_TYPES, "mdi:grain"),
         MovaPropertySelect(coordinator, did, "air_purification_duration", "Air Purification Duration", 3, 17, AIR_PURIFICATION_DURATIONS, "mdi:air-filter"),
         MovaPropertySelect(coordinator, did, "leveling_angle", "Leveling Angle", 3, 21, LEVELING_ANGLES, "mdi:format-line-spacing"),
     ])
+
+
+class MovaBagReminderModeSelect(MovaBaseEntity, SelectEntity):
+    """Choose between a usage projection and fixed user limits."""
+
+    _attr_icon = "mdi:calendar-sync"
+    _attr_options = ["Automatic", "Manual"]
+
+    def __init__(self, coordinator: MovaLitterboxCoordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_reminder_mode", "Bag Reminder Mode")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def current_option(self) -> str:
+        return self.coordinator.bag_reminder_mode
+
+    async def async_select_option(self, option: str) -> None:
+        await self.coordinator.async_set_bag_reminder_mode(option)
 
 
 class MovaCleaningModeSelect(MovaBaseEntity, SelectEntity):

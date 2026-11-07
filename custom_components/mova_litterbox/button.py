@@ -16,7 +16,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities(
+    async_add_entities([
         MovaCycleButton(coordinator, entry.data["did"], key, name, aiid, icon, statuses)
         for key, name, aiid, icon, statuses in (
             ("start_cleaning", "Start Cleaning", 1, "mdi:broom", {0}),
@@ -26,7 +26,23 @@ async def async_setup_entry(
             ("resume", "Resume", 6, "mdi:play", {2, 4, 6}),
             ("stop", "Stop", 4, "mdi:stop", {1, 2, 3, 4, 5, 6}),
         )
-    )
+    ] + [MovaBagReplacedButton(coordinator, entry.data["did"])])
+
+
+class MovaBagReplacedButton(MovaBaseEntity, ButtonEntity):
+    """Record a physical bag change; this does not command the device."""
+
+    _attr_icon = "mdi:trash-can-check-outline"
+
+    def __init__(self, coordinator, did: str) -> None:
+        super().__init__(coordinator, did, "bag_replaced", "Bag Replaced")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    async def async_press(self) -> None:
+        await self.coordinator.async_mark_bag_replaced()
 
 
 class MovaCycleButton(MovaBaseEntity, ButtonEntity):
