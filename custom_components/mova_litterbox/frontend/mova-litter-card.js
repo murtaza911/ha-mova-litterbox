@@ -87,15 +87,15 @@
             id: item.device_id, name: names.get(item.device_id) || "MOVA Litter Box", fields: {}, pets: new Map(),
           });
           const device = grouped.get(item.device_id);
-          const key = MATCH_KEYS.find((candidate) => item.unique_id?.endsWith(`_${candidate}`));
-          if (key) {
-            device.fields[key] = item.entity_id;
-            continue;
-          }
-          const pet = item.unique_id?.match(/_pet_(.+)_(yesterday_visits|last_visit|visits|weight)$/);
+          const pet = item.unique_id?.match(/_pet_(.+?)_(yesterday_visits|last_visit|visits|weight)$/);
           if (pet) {
             if (!device.pets.has(pet[1])) device.pets.set(pet[1], {});
             device.pets.get(pet[1])[pet[2]] = item.entity_id;
+            continue;
+          }
+          const key = MATCH_KEYS.find((candidate) => item.unique_id?.endsWith(`_${candidate}`));
+          if (key) {
+            device.fields[key] = item.entity_id;
           }
         }
         this._devices = [...grouped.values()].filter((device) => device.fields.device_status);
@@ -133,10 +133,10 @@
           :host{display:block;min-width:0;font-family:var(--primary-font-family,inherit);color:var(--primary-text-color)}
           *{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer}button:disabled,input:disabled,select:disabled{opacity:.45;cursor:not-allowed}
           button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
-          ha-card{overflow:hidden}.tile{width:100%;display:flex;align-items:center;gap:13px;padding:16px;border:0;background:transparent;color:inherit;text-align:left;min-height:90px}
+          ha-card{overflow:hidden}.tile{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:11px;row-gap:10px;padding:14px 15px;border:0;background:transparent;color:inherit;text-align:left;min-height:108px}
           .icon{height:44px;width:44px;border-radius:14px;flex:none;display:grid;place-items:center;background:var(--state-icon-color,var(--secondary-background-color));color:var(--state-icon-active-color,var(--primary-color))}
           .icon ha-icon{--mdc-icon-size:26px}.copy{flex:1;min-width:0}.name{display:block;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-          .status,.sub{display:block;color:var(--secondary-text-color);font-size:13px;margin-top:3px}.sub{font-size:12px}.value{text-align:right;flex:none}.value strong{display:block;font-size:20px;font-weight:600}.value small{display:block;color:var(--secondary-text-color);font-size:11px}
+          .status,.sub{display:block;color:var(--secondary-text-color);font-size:13px;margin-top:3px}.sub{grid-column:1/-1;grid-row:2;margin:0;padding-top:9px;border-top:1px solid var(--divider-color);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.value{text-align:right;white-space:nowrap}.value strong{display:block;font-size:20px;font-weight:600}.value small{display:block;color:var(--secondary-text-color);font-size:11px}
           .due{color:var(--error-color,#d9534f)!important}dialog{width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);border:1px solid var(--divider-color);border-radius:20px;background:var(--card-background-color,var(--ha-card-background,#fff));color:var(--primary-text-color);padding:0;box-shadow:0 20px 60px #0005}
           dialog::backdrop{background:#0008}.sheet{max-height:calc(100dvh - 24px);display:flex;flex-direction:column}.head{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--divider-color)}.head h2{font-size:19px;margin:0;flex:1}.close{border:0;background:var(--secondary-background-color);color:inherit;border-radius:50%;width:36px;height:36px}
           .body{overflow:auto;padding:20px}.lead{font-size:14px;color:var(--secondary-text-color);margin:0 0 18px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:20px}.stat{background:var(--secondary-background-color);border-radius:12px;padding:12px}.stat small{display:block;color:var(--secondary-text-color);font-size:11px}.stat strong{display:block;margin-top:5px;font-size:18px;overflow-wrap:anywhere}
@@ -146,7 +146,7 @@
           details{border-top:1px solid var(--divider-color);margin-top:21px;padding-top:13px}summary{cursor:pointer;font-weight:600;font-size:14px}.settings{display:grid;gap:2px;margin-top:12px}.setting{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px;font-size:13px}.setting span{flex:1}.setting button{border:1px solid var(--divider-color);border-radius:9px;background:var(--secondary-background-color);color:inherit;padding:7px 11px}.setting button[aria-pressed=true]{color:var(--primary-color);border-color:var(--primary-color)}.setting select,.setting input{max-width:150px;padding:6px;border:1px solid var(--divider-color);border-radius:7px;background:var(--card-background-color,var(--ha-card-background,#fff));color:inherit}
           .message{font-size:12px;color:var(--error-color,#d9534f);min-height:1em;margin:12px 0 0}@media(max-width:420px){.body{padding:16px}.head{padding:15px 16px}.action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{gap:5px}.stat{padding:10px}}
         </style>
-        <ha-card><button class="tile" type="button" aria-label="Open MOVA litter box controls"><span class="icon"><ha-icon icon="mdi:cat"></ha-icon></span><span class="copy"><span class="name"></span><span class="status"></span><span class="sub"></span></span><span class="value"><strong class="visits"></strong><small>visits today</small></span></button></ha-card>
+        <ha-card><button class="tile" type="button" aria-label="Open MOVA litter box controls"><span class="icon"><ha-icon icon="mdi:cat"></ha-icon></span><span class="copy"><span class="name"></span><span class="status"></span></span><span class="value"><strong class="visits"></strong><small>visits today</small></span><span class="sub"></span></button></ha-card>
         <dialog><div class="sheet"><div class="head"><ha-icon icon="mdi:cat"></ha-icon><h2 class="dialog-name"></h2><button class="close" type="button" data-close aria-label="Close">×</button></div><div class="body">
           <div class="device-choice" hidden><label for="mova-device">Device </label><select id="mova-device"></select></div><p class="lead"></p>
           <div class="stats"><div class="stat"><small>Visits today</small><strong class="stat-visits">—</strong></div><div class="stat"><small>Average visit</small><strong class="stat-duration">—</strong></div><div class="stat"><small>Last visit</small><strong class="stat-last">—</strong></div></div>
@@ -222,14 +222,15 @@
       this._set(".status", device ? title(value("device_status")) : this._error || (this._loading ? "Finding device…" : "No MOVA litter box found"));
       this._set(".visits", value("visits_today"));
       this._set(".stat-visits", value("visits_today"));
-      this._set(".stat-duration", value("avg_duration"));
+      const duration = state("avg_duration");
+      this._set(".stat-duration", unavailable(duration) ? "—" : `${duration.state} ${duration.attributes?.unit_of_measurement || ""}`.trim());
       this._set(".stat-last", value("last_visit"));
       this._set(".lead", `Device status: ${title(value("device_status"))}`);
       const estimate = state("bag_estimated_days_remaining");
       const days = Number(estimate?.state);
       const due = state("bag_reminder_due")?.state === "on";
       const bagText = due || (!unavailable(estimate) && days <= 0) ? "Replace the waste bag now" : unavailable(estimate) ? "Set the last replacement date to start an estimate" : `Replace the waste bag in about ${days} day${days === 1 ? "" : "s"}`;
-      this._set(".sub", bagText);
+      this._set(".sub", due ? "Replace bag now" : unavailable(estimate) ? "Set bag change date" : `Replace bag in ~${days} day${days === 1 ? "" : "s"}`);
       this._set(".bag-estimate", bagText);
       this.shadowRoot.querySelector(".sub")?.classList.toggle("due", due);
       this.shadowRoot.querySelector(".bag-estimate")?.classList.toggle("due", due);
@@ -268,7 +269,7 @@
       petList.replaceChildren();
       if (device) for (const pet of device.pets.values()) {
         const visits = this._hass?.states?.[pet.visits];
-        const name = visits?.attributes?.friendly_name?.replace(/ Visits Today$/, "") || "Pet";
+        const name = visits?.attributes?.friendly_name?.replace(/ Visits Today$/, "")?.replace(`${device.name} `, "") || "Pet";
         const row = document.createElement("div");
         row.className = "pet";
         const label = document.createElement("span");
